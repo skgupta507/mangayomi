@@ -7,12 +7,13 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:mangayomi/services/background_downloader/src/downloader/downloader_http_client.dart';
+
 import '../chunk.dart';
 import '../exceptions.dart';
 import '../models.dart';
 import '../task.dart';
 import '../utils.dart';
+import 'desktop_downloader.dart';
 import 'download_isolate.dart';
 import 'isolate.dart';
 
@@ -67,7 +68,7 @@ Future<void> doParallelDownloadTask(
   parentTask = task;
   if (!isResume) {
     // start the download by creating [Chunk]s and enqueuing chunk tasks
-    final response = await (DownloaderHttpClient.httpClient)
+    final response = await DesktopDownloader.httpClient
         .head(Uri.parse(task.url), headers: task.headers);
     responseHeaders = response.headers;
     responseStatusCode = response.statusCode;

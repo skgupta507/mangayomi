@@ -258,7 +258,7 @@ Future<List<PageUrl>> downloadChapter(
         isar.downloads.putSync(download..chapter.value = chapter);
       });
     } else {
-      await FileDownloader().downloadBatch(
+      await FileDownloader(isManga: isManga).downloadBatch(
         tasks,
         batchProgressCallback: (succeeded, failed) async {
           if (isManga) {

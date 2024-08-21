@@ -11,7 +11,6 @@ import 'package:logging/logging.dart';
 import 'package:mangayomi/services/http/m_client.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:rhttp/rhttp.dart';
 import '../base_downloader.dart';
 import '../chunk.dart';
 import '../exceptions.dart';
@@ -28,30 +27,27 @@ const okResponses = [200, 201, 202, 203, 204, 205, 206];
 /// On desktop (MacOS, Linux, Windows) the download and upload are implemented
 /// in Dart, as there is no native platform equivalent of URLSession or
 /// WorkManager as there is on iOS and Android
-final class DownloaderHttpClient extends BaseDownloader {
-  static final _log = Logger('DownloaderHttpClient');
+final class DesktopDownloaderAnime extends BaseDownloader {
+  static final _log = Logger('DesktopDownloaderAnime');
   static const unlimited = 1 << 20;
   var maxConcurrent = 10;
   var maxConcurrentByHost = unlimited;
   var maxConcurrentByGroup = unlimited;
-  static final DownloaderHttpClient _singleton =
-      DownloaderHttpClient._internal();
+  static final DesktopDownloaderAnime _singleton =
+      DesktopDownloaderAnime._internal();
   final _queue = PriorityQueue<Task>();
   final _running = Queue<Task>(); // subset that is running
   final _resume = <Task>{};
   final _isolateSendPorts =
       <Task, SendPort?>{}; // isolate SendPort for running task
-  static var httpClient = MClient.httpClient(
-      settings: const ClientSettings(
-          throwOnStatusCode: false,
-          tlsSettings: TlsSettings(verifyCertificates: false)));
+  static var httpClient = MClient.httpClient();
   static Duration? _requestTimeout;
   static var _proxy = <String, dynamic>{}; // 'address' and 'port'
   static var _bypassTLSCertificateValidation = false;
 
-  factory DownloaderHttpClient() => _singleton;
+  factory DesktopDownloaderAnime() => _singleton;
 
-  DownloaderHttpClient._internal();
+  DesktopDownloaderAnime._internal();
 
   @override
   Future<bool> enqueue(Task task) async {
@@ -576,11 +572,7 @@ final class DownloaderHttpClient extends BaseDownloader {
 
   /// Recreates the [httpClient] used for Requests and isolate downloads/uploads
   static _recreateClient() async {
-    await Rhttp.init();
-    httpClient = MClient.httpClient(
-        settings: const ClientSettings(
-            throwOnStatusCode: false,
-            tlsSettings: TlsSettings(verifyCertificates: false)));
+    httpClient = MClient.httpClient();
   }
 
   @override

@@ -7,7 +7,6 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:mangayomi/services/background_downloader/src/downloader/downloader_http_client.dart';
 import 'package:mangayomi/services/background_downloader/src/exceptions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +16,7 @@ import 'package:logging/logging.dart';
 import '../models.dart';
 import '../task.dart';
 import 'data_isolate.dart';
+import 'desktop_downloader.dart';
 import 'download_isolate.dart';
 import 'parallel_download_isolate.dart';
 import 'upload_isolate.dart';
@@ -67,7 +67,7 @@ Future<void> doTask((RootIsolateToken, SendPort) isolateArguments) async {
     Map<String, dynamic> proxy,
     bool bypassTLSCertificateValidation
   ) = await messagesToIsolate.next;
-  DownloaderHttpClient.setHttpClient(
+  DesktopDownloader.setHttpClient(
       requestTimeout, proxy, bypassTLSCertificateValidation);
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((LogRecord rec) {

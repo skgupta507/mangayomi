@@ -6,7 +6,6 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:http/http.dart' as http;
-import 'package:mangayomi/services/background_downloader/src/downloader/downloader_http_client.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -14,6 +13,7 @@ import '../exceptions.dart';
 import '../models.dart';
 import '../task.dart';
 import '../utils.dart';
+import 'desktop_downloader.dart';
 import 'isolate.dart';
 
 var taskRangeStartByte = 0; // Start of the Task's download range
@@ -45,7 +45,7 @@ Future<void> doDownloadTask(
   final eTag = resumeData?.eTag;
   isResume = isResume &&
       await determineIfResumeIsPossible(tempFilePath, requiredStartByte);
-  final client = DownloaderHttpClient.httpClient;
+  final client = DesktopDownloader.httpClient;
   var request =
       http.Request(downloadTask.httpRequestMethod, Uri.parse(downloadTask.url));
   request.headers.addAll(downloadTask.headers);

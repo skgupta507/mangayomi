@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:http/http.dart' as http;
-import 'package:mangayomi/services/background_downloader/src/downloader/downloader_http_client.dart';
+
 import 'package:mangayomi/services/background_downloader/background_downloader.dart';
+import 'desktop_downloader.dart';
 import 'download_isolate.dart';
 import 'isolate.dart';
 
@@ -12,7 +13,7 @@ import 'isolate.dart';
 /// Sends updates via the [sendPort] and can be commanded to cancel via
 /// the [messagesToIsolate] queue
 Future<void> doDataTask(DataTask task, SendPort sendPort) async {
-  final client = DownloaderHttpClient.httpClient;
+  final client = DesktopDownloader.httpClient;
   var request = http.Request(task.httpRequestMethod, Uri.parse(task.url));
   request.headers.addAll(task.headers);
   if (task.post is String) {

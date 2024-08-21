@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'base_downloader.dart';
 import 'localstore/localstore.dart';
-import 'package:mangayomi/services/background_downloader/src/downloader/downloader_http_client.dart';
+import 'desktop/desktop_downloader.dart';
 
 /// Provides access to all functions of the plugin in a single place.
 interface class FileDownloader {
@@ -31,20 +31,20 @@ interface class FileDownloader {
   @visibleForTesting
   BaseDownloader get downloaderForTesting => _downloader;
 
-  factory FileDownloader({PersistentStorage? persistentStorage}) {
+  factory FileDownloader(
+      {PersistentStorage? persistentStorage, bool isManga = false}) {
     assert(
         _singleton == null || persistentStorage == null,
         'You can only supply a persistentStorage on the very first call to '
         'FileDownloader()');
     _singleton ??= FileDownloader._internal(
-      persistentStorage ?? LocalStorePersistentStorage(),
-    );
+        persistentStorage ?? LocalStorePersistentStorage(), isManga);
     return _singleton!;
   }
 
-  FileDownloader._internal(PersistentStorage persistentStorage) {
+  FileDownloader._internal(PersistentStorage persistentStorage, bool isManga) {
     database = Database(persistentStorage);
-    _downloader = BaseDownloader.instance(persistentStorage, database);
+    _downloader = BaseDownloader.instance(persistentStorage, database, isManga);
   }
 
   /// True when initialization is complete and downloader ready for use
@@ -773,14 +773,12 @@ interface class FileDownloader {
   /// the downloader. If not set, the default [http.Client] will be used.
   /// The request is executed on an Isolate, to ensure minimal interference
   /// with the main Isolate
-  Future<http.Response> request(Request request) {
-    return compute(_doRequest, (
-      request,
-      DownloaderHttpClient.requestTimeout,
-      DownloaderHttpClient.proxy,
-      DownloaderHttpClient.bypassTLSCertificateValidation
-    ));
-  }
+  Future<http.Response> request(Request request) => compute(_doRequest, (
+        request,
+        DesktopDownloader.requestTimeout,
+        DesktopDownloader.proxy,
+        DesktopDownloader.bypassTLSCertificateValidation
+      ));
 
   /// Move the file represented by the [task] to a shared storage
   /// [destination] and potentially a [directory] within that destination. If
@@ -895,10 +893,9 @@ Future<http.Response> _doRequest(
   final (request, requestTimeout, proxy, bypassTLSCertificateValidation) =
       params;
 
-  DownloaderHttpClient.setHttpClient(
+  DesktopDownloader.setHttpClient(
       requestTimeout, proxy, bypassTLSCertificateValidation);
-
-  final client = DownloaderHttpClient.httpClient;
+  final client = DesktopDownloader.httpClient;
   var response = http.Response('', 499,
       reasonPhrase: 'Not attempted'); // dummy to start with
   while (request.retriesRemaining >= 0) {

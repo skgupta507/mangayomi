@@ -11,7 +11,7 @@ import 'package:path/path.dart' as p;
 
 import '../models.dart';
 import '../task.dart';
-import 'package:mangayomi/services/background_downloader/src/downloader/downloader_http_client.dart';
+import 'desktop_downloader.dart';
 import 'isolate.dart';
 
 const boundary = '-----background_downloader-akjhfw281onqciyhnIk';
@@ -45,7 +45,7 @@ Future<TaskStatus> binaryUpload(
   final fileSize = inFile.lengthSync();
   var resultStatus = TaskStatus.failed;
   try {
-    final client = DownloaderHttpClient.httpClient;
+    final client = DesktopDownloader.httpClient;
     final request =
         http.StreamedRequest(task.httpRequestMethod, Uri.parse(task.url));
     request.headers.addAll(task.headers);
@@ -152,7 +152,7 @@ Future<TaskStatus> multipartUpload(
   var resultStatus = TaskStatus.failed;
   try {
     // setup the connection
-    final client = DownloaderHttpClient.httpClient;
+    final client = DesktopDownloader.httpClient;
     final request =
         http.StreamedRequest(task.httpRequestMethod, Uri.parse(task.url));
     request.contentLength = contentLength;
